@@ -24,6 +24,7 @@ export default function Grading() {
   const [id, setId] = useState('');
   const { uid } = useParams();
   const navigate = useNavigate();
+  const [newname, setNewName] = useState('');
 
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
@@ -35,10 +36,46 @@ export default function Grading() {
     const ID = localStorage.getItem('ID');
     const role = localStorage.getItem('role');
 
+    const userId = uid; // Replace with the actual user ID you want to fetch
+    const apiUrl = `https://appbackend-rala.onrender.com/getuname/${userId}`;
+    
+    axios.get(apiUrl)
+      .then(response => {
+        // Handle the successful response here
+        console.log('hi');
+        console.log('User Name:', response.data[0].Name);
+        setNewName(response.data[0].Name)
+        
+        console.log('hii');
+      })
+      .catch(error => {
+        // Handle errors here
+        console.error('Error fetching user name:', error);
+      });
+
     // Set the default Authorization header for Axios
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setId(ID);
   }, []);
+
+  if (!isReviewer) {
+    axios
+      .get(`https://appbackend-rala.onrender.com/feedback/getfeedback/${uid}`)
+      .then((response) => {
+          const feedbackData = response.data;
+
+          // Assuming feedbackData has fields for strengths and improvements
+          // Update the tableData with feedback values
+          setTableData([
+            { point: 'Areas of strength of the appraisee that need nurturing', feedback: feedbackData.strengths },
+            { point: 'Areas where the appraisee needs to take action for improvements, and suggested steps', feedback: feedbackData.improvements },
+          ]);
+        })
+      .catch((error) => {
+        console.error('Error fetching feedbacks:', error);
+      });
+  }
+  
   // Function to handle form submission
   const handleSubmit = () => {
     // Prepare the data to send to the server
@@ -127,18 +164,13 @@ export default function Grading() {
                     <td style={{border:"none",backgroundColor:"#212A3E"}}>{rowData.point}</td>
                   </th>
                     <td style={{backgroundColor:"#212A3E"}}>
-                      <input className='ssbox2'
+                       <input className='ssbox2'
                         type="text"
-                        style={{backgroundColor:"white",width:"45vw"}}
+                        style={{ backgroundColor: "white", width: "45vw" }}
                         disabled={isReviewer}
-                        value={rowData.recommendation}
+                        value={rowData.feedback}
                         onChange={(e) => handleFeedbackChange(index, e.target.value)}
-                        placeholder={
-          index === 0 ? 'Assessment of the reviewing authority to be recorded here' :
-          
-           'Assessment of the reviewing authority to be recorded here' 
-          
-        }
+                        placeholder={index === 0 ? 'Assessment of the reviewing authority to be recorded here' : 'Assessment of the reviewing authority to be recorded here'}
                       />
                     </td>
                   </tr>
