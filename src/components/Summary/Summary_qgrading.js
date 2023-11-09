@@ -13,12 +13,37 @@ export default function Grading() {
     responsibilityFulfillment: { maxScore: '', selfScore: '', evaluatorScore: '', reviewerScore: '', finalScore: '', comments: '' },
   });
     const { uid } = useParams();
+    const [newname, setNewName] = useState('');
+    
+  const [id, setId] = useState('');
+  const role = localStorage.getItem('role');
 
   useEffect(() => {
     // Retrieve the token and ID from local storage
     const token = localStorage.getItem('token');
     const ID = localStorage.getItem('ID');
     const role = localStorage.getItem('role');
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    ;
+    setId(ID);
+
+    const userId = uid; // Replace with the actual user ID you want to fetch
+    const apiUrl = `https://appbackend-rala.onrender.com/getuname/${userId}`;
+    
+    axios.get(apiUrl)
+      .then(response => {
+        // Handle the successful response here
+        console.log('hi');
+        console.log('User Name:', response.data[0].Name);
+        setNewName(response.data[0].Name)
+        
+        console.log('hii');
+      })
+      .catch(error => {
+        // Handle errors here
+        console.error('Error fetching user name:', error);
+      });
     
     // Set the default Authorization header for Axios
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -72,10 +97,21 @@ export default function Grading() {
   return (
     <div className="main-body">
       <div className="sidebar">
-        {/* Sidebar content */}
-        <img src={logoImage} alt="Example" className="logoimage" style={{width:"7.5vw"}}/>
-        {/* ... (rest of your sidebar) ... */}
+      {/* Sidebar content */}
+      <img src={logoImage} alt="Example" className='logoimage' style={{width:"7.5vw"}}/>
+      <div className="sidebar-item" style={{ marginTop: 50 }}>
+        <i className="material-icons"></i>
+        <span>Dashboard</span>
       </div>
+      <div className="sidebar-item">
+        <i className="material-icons"></i>
+        <span>Self Appraisal</span>
+      </div>
+      <div className="sidebar-item">
+        <i className="material-icons"></i>
+        <span>Team</span>
+      </div>
+    </div>
 
       <div className="right">
         <div className="top">
@@ -84,6 +120,15 @@ export default function Grading() {
             Summary
           </h1>
           {/* ... (rest of your top section) ... */}
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: '100px' }}>
+          <img src={userImage} alt="Example" className='profileimage' />
+
+          {/* Display the name and id */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 className='name'>{id}</h3>
+            <p className='name' style={{ fontWeight: 300, fontSize: 16, marginTop: -15 }}>{role}</p>
+          </div>
+        </div>
         </div>
         <div className="break"></div>
         <div className="bottom">
